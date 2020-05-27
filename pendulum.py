@@ -14,7 +14,8 @@ class Pendulum:
         self.l = length
         self.c1 = c1
         self.c2 = c2
-        self.initial_state = initial_state
+        self.state = initial_state
+        self.time_elapsed = 0
 
     def dynamic(self, y, t, g):
         """
@@ -29,5 +30,14 @@ class Pendulum:
 
         return [theta_p, -(1.5)*g*sin(theta)/self.l - self.c1*theta_p - self.c2*theta_p*abs(theta_p)]
 
-    def solve(self, t,  entradas):
-        return integrate.odeint(self.dynamic, self.initial_state, t, args=entradas)
+    def get_position(self):
+        return (100*math.sin(self.state[0]), 100*math.cos(self.state[0]))
+
+    def get_theta(self):
+        return 180*self.state[0]/math.pi
+    def get_omega(self):
+        return self.state[1]
+
+    def solve(self, dt,  entradas):
+        self.state = integrate.odeint(self.dynamic, self.state, [0,dt], args=entradas)[1]
+        self.time_elapsed += dt

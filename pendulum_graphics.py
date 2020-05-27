@@ -1,4 +1,4 @@
-import pygame
+import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 from math import sin, cos
 
@@ -10,36 +10,39 @@ class Graphics():
     - show_graphics mostra os gráficos de angulo e velocidade angular em função do tempo.
 
     """
-    def __init__(self, scrx, scry, t, data):
-        self.scrx = scrx # tamanho da tela em x
-        self.scry = scry # tamanho da tela em y
-        self.t = t       # linspace de tempo usado na simulação
-        self.data = data # valores de theta e omega resultados da simulação
+    def __init__(self, pend):
+        self.fig = plt.figure()
+        self.ax = self.fig.add_subplot(111, aspect='equal', autoscale_on = False, xlim = (-2,2), ylim = (-2,2))
+        self.ax.grid()
+        self.line, = self.ax.plot([],[], 'o-', lw=2)
+        self.time_text = self.ax.text(0.02, 0.95, '', transform=self.ax.transAxes)
+        self.theta_text = self.ax.text(0.02, 0.90, '', transform=self.ax.transAxes)
+        self.omega_text = self.ax.text(0.02, 0.85, '', transform=self.ax.transAxes)
+        self.pendulum = pend
 
-    def show_simulation(self, line_size = 7, line_color = (0,0,255)):
-        # Iniciando o pygame e a tela inicial
-        pygame.init()
-        timer = pygame.time.Clock()
-        screen = pygame.display.set_mode([self.scrx, self.scry])
-        screen.fill((255,255,255))
+    def init_anim(self):
+        """initialize animation"""
+        self.line.set_data([], [])
+        self.time_text.set_text('')
+        self.theta_text.set_text('')
+        self.omega_text.set_text('')
+        return self.line, self.time_text, self.theta_text, self.omega_text
 
-        # Condições de início e fim
-        running = 0
-        end = len(self.t)
+    def animate(self):
+        self.pendulum.solve(0.01, (9.81,))
 
-        # Enquanto todos os valores de tempo ainda não forem percorridos
-        while running != end:
-            screen.fill((255,255,255))
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-            # Essa lei pode mudar. Padronizei o tamanho da barra em 100 pixels, mas talvez possa mudar.
-            pygame.draw.line(screen, line_color, (self.scrx/2, self.scry/2), (self.scrx/2 + 100*sin(self.data[running,1]),self.scry/2 + 100*cos(self.data[running,1])), line_size)
-            running += 1
-            pygame.display.flip()
-            timer.tick(60)
+        self.line.set_data(*self.pendulum.get_position())
+        self.time_text.set_text('time = %.1f' % self.pendulum.time_elapsed)
+        self.theta_text.set_text('theta = %.1f' % self.pendulum.get_theta())
+        self.omega_text.set_text('omega = %.1f' % self.pendulum.get_omega())
 
-        pygame.quit()
+        return self.line, self.time_text, self.theta_text, self.omega_text
+
+    def show_animation(self):
+        interval = 10
+        ani = animation.FuncAnimation(self.fig, Graphics.animate(self), frames=300, interval=interval, blit=True, init_func = Graphics.init_anim(self))
+        plt.show()
+
 
     def show_graphics(self):
         plt.plot(self.t, self.data[:, 0], 'b', label='theta(t)')
