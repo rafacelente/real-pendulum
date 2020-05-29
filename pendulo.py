@@ -7,11 +7,11 @@ pendulum".
 http://www.fis.ita.br/labfis26/temas/oscilacao/03_apoio/artigos/artigos/07_Real-world%20damping%20of%20a%20physical%20pendulum.pdf
 
 A simulação é feita utilizando o método de Runge-Kutta de quarta ordem com
-pass constante através da função odeint biblioteca Scipy.
+passo constante através da função odeint biblioteca Scipy.
 https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.odeint.html
 
 As figuras e animações são feitas utilizando a biblioteca Matplotlib e são
-adaptadas no código de Jake Vanderplas para a animação de um pêndulo duplo.
+adaptadas do código de Jake Vanderplas para a animação de um pêndulo duplo.
 https://jakevdp.github.io/blog/2012/08/18/matplotlib-animation-tutorial/
 
 autor: Rafael Celente ITA T-23
@@ -157,7 +157,10 @@ def init():
     return theta_line, omega_line, line, time_text, theta_text, omega_text
 
 def animate(i):
-    """perform animation step"""
+    """perform animation step"""do pendulo
+estado_inicial = [60, 100]    # Estado inicial do pêndulo (theta, omega)
+c1 = 0.1                    # coeficiente de arrasto linear
+c2 = 0.1
     global pendulum, dt
     pendulum.step(dt)
 
